@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Build') {
             agent {
@@ -20,7 +20,7 @@ pipeline {
                 '''
             }
         }
-        
+
         stage('Test') {
             parallel {
                 stage('Unit tests') {
@@ -42,7 +42,7 @@ pipeline {
                         }
                     }
                 }
-                
+
                 stage('E2E') {
                     agent {
                         docker {
@@ -75,7 +75,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy') {
             agent {
                 docker {
@@ -90,5 +90,15 @@ pipeline {
                 '''
             }
         }
+
+            stage('Debug') {
+                steps {
+                    sh '''
+                    whoami
+                    docker --version
+                    docker ps
+                '''
+                }
+            }
     }
 }
