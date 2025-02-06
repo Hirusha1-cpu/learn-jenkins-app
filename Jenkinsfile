@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('Build') {
             agent {
@@ -20,7 +20,7 @@ pipeline {
                 '''
             }
         }
-
+        
         stage('Test') {
             parallel {
                 stage('Unit tests') {
@@ -32,9 +32,9 @@ pipeline {
                     }
                     steps {
                         sh '''
-                    test -f build/index.html
-                    npm test
-                '''
+                            test -f build/index.html
+                            npm test
+                        '''
                     }
                     post {
                         always {
@@ -42,6 +42,7 @@ pipeline {
                         }
                     }
                 }
+                
                 stage('E2E') {
                     agent {
                         docker {
@@ -51,32 +52,31 @@ pipeline {
                     }
                     steps {
                         sh '''
-                         npm install serve
-                         node_modules/.bin/serve -s build &
-                         sleep 10
-                         npx playwright test --reporter=html
+                            npm install serve
+                            node_modules/.bin/serve -s build &
+                            sleep 10
+                            npx playwright test --reporter=html
                         '''
                     }
                     post {
                         always {
                             publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
-                    keepAll: false,
-                    reportDir: 'coverage/lcov-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Code Coverage Report',
-                    reportTitles: '',
-                    useWrapperFileDirectly: true
-                ])
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: false,
+                                keepAll: false,
+                                reportDir: 'coverage/lcov-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Code Coverage Report',
+                                reportTitles: '',
+                                useWrapperFileDirectly: true
+                            ])
                         }
                     }
                 }
             }
         }
-    }
-
-    stage('Deploy') {
+        
+        stage('Deploy') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -89,5 +89,6 @@ pipeline {
                     node_modules/.bin/netlify --version
                 '''
             }
+        }
     }
 }
